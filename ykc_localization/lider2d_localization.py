@@ -9,13 +9,13 @@ import numpy as np
 class SelfLocalizationNode(Node):
     def __init__(self):
         super().__init__('lider2d_localization')
-        self.pose = Pose2D()  #自己位置
-        self.startpose = Pose2D(0.35,0.35,0)  #初期位置
+        self.pose = Pose2D()  # 自己位置
+        self.startpose = Pose2D(0.35, 0.35, 0)  # 初期位置
         
         # 2つのポールの位置を設定
         self.pole_positions = [
-            {"x": 1.3, "y": 3.3, "radius": 0.25},  # ポール1
-            {"x": 2.3, "y": 3.3, "radius": 0.25}  # ポール2
+            {"x": 1.3, "y": 3.3, "radius": 0.23},  # ポール1
+            {"x": 2.3, "y": 3.3, "radius": 0.23}  # ポール2
         ]
         
         # 設定可能なパラメータ
@@ -34,9 +34,9 @@ class SelfLocalizationNode(Node):
         
     def robot_vel_callback(self, msg):
         # ロボットの速度を使って次の自己位置を予測
-        self.pose.x += (msg.x*np.sin(self.pose.theta)+msg.y*np.cos(self.pose.theta))*self.mesure_time
-        self.pose.y += (msg.y*np.sin(self.pose.theta)-msg.x*np.cos(self.pose.theta))*self.mesure_time
-        self.pose.theta += msg.theta*self.mesure_time
+        self.pose.x += (msg.x * np.sin(self.pose.theta) + msg.y * np.cos(self.pose.theta)) * self.mesure_time
+        self.pose.y += (msg.y * np.sin(self.pose.theta) - msg.x * np.cos(self.pose.theta)) * self.mesure_time
+        self.pose.theta += msg.theta * self.mesure_time
         
     def joy_callback(self, msg):
         if msg.buttons[3] == 1:
@@ -51,19 +51,19 @@ class SelfLocalizationNode(Node):
         candidate_points = self.generate_grid_points()
         best_point, min_error = None, float('inf')
 
-        # 各候補点について誤差計算
+        # 各候補点について二乗誤差の計算
         for point in candidate_points:
-            error_sum = 0.0
+            squared_error_sum = 0.0
             for pole in self.pole_positions:
                 predicted_distances = self.calculate_distances_to_pole(point, pole)
                 actual_distance = self.get_lidar_distance_to_pole(clipped_ranges, point, pole)
 
-                # 距離の誤差を累積
-                error_sum += abs(predicted_distances - actual_distance)
+                # 二乗誤差を累積
+                squared_error_sum += (predicted_distances - actual_distance) ** 2
             
-            # 最小誤差を持つ点を選択
-            if error_sum < min_error:
-                min_error = error_sum
+            # 最小二乗誤差を持つ点を選択
+            if squared_error_sum < min_error:
+                min_error = squared_error_sum
                 best_point = point
 
         # 推定位置を更新
