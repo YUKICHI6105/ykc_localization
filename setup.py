@@ -11,7 +11,9 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
     ],
-    install_requires=['setuptools'],
+    install_requires=['setuptools',
+                      'sensor_msgs',      # sensor_msgsの依存関係
+                        'geometry_msgs'],    # geometry_msgsの依存関係],
     zip_safe=True,
     maintainer='yukichi6105',
     maintainer_email='107849799+YUKICHI6105@users.noreply.github.com',
