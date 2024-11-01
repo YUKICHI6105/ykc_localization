@@ -10,7 +10,11 @@ class SelfLocalizationNode(Node):
     def __init__(self):
         super().__init__('lider2d_localization')
         self.pose = Pose2D()
-        self.startpose = Pose2D(0.35, 0.35, 0)
+        self.startpose = Pose2D()
+        self.startpose.x = 0.35
+        self.startpose.y = 0.35
+        self.startpose.theta = 0.0
+        self.mesure_time = 0.1
         
         # ポール位置と半径
         self.pole_positions = [
@@ -46,7 +50,9 @@ class SelfLocalizationNode(Node):
 
     def joy_callback(self, msg):
         if msg.buttons[3] == 1:
-            self.pose = self.startpose
+            self.pose.x = self.startpose.x
+            self.pose.y = self.startpose.y
+            self.pose.theta = self.startpose.theta
             self.pose_publisher.publish(self.pose)
 
     def sensor_callback(self, msg):
